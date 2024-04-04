@@ -14,10 +14,13 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  Pagination,
 } from "@mui/material";
 import { RootState, AppDispatch } from "../store/store";
 import { fetchTagsAsync } from "../store/tagsSlice";
 import { fetchTags, Tag } from "../services/api";
+import PaginationControl from "./PaginationControl";
+import PageSize from "./PageSize";
 
 const TagTable: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
@@ -26,8 +29,8 @@ const TagTable: React.FC = () => {
   );
   const [page, setPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-  const [sortBy, setSortBy] = useState<"name" | "popular">("name");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [sortBy, setSortBy] = useState<"name" | "popular">("popular");
 
   useEffect(() => {
     fetchData();
@@ -43,6 +46,7 @@ const TagTable: React.FC = () => {
   };
 
   const handleSortChange = (newSortBy: "name" | "popular") => {
+    setPage(1);
     if (sortBy === newSortBy) {
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
     } else {
@@ -55,66 +59,76 @@ const TagTable: React.FC = () => {
     setPage(newPage);
   };
 
-  if (loading) return <CircularProgress />;
   if (error) return <div>Error: {error}</div>;
 
   return (
     <div>
-      <FormControl>
-        <InputLabel id="page-size-label">Items per page</InputLabel>
-        <Select
-          labelId="page-size-label"
-          id="page-size"
-          value={pageSize}
-          onChange={(event) => {
-            setPageSize(event.target.value as number);
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "Center",
+          gap: "8px",
+          alignItems: "center",
+        }}
+      >
+        <PageSize
+          pageSize={pageSize}
+          onPageSizeChange={(newPageSize) => {
+            setPageSize(newPageSize);
             setPage(1);
           }}
-        >
-          <MenuItem value={10}>10</MenuItem>
-          <MenuItem value={20}>20</MenuItem>
-          <MenuItem value={50}>50</MenuItem>
-        </Select>
-      </FormControl>
+        />
 
-      <Button variant="contained" onClick={() => handleSortChange("name")}>
-        Sort by Name {sortBy === "name" && sortOrder === "asc" && "↑"}
-        {sortBy === "name" && sortOrder === "desc" && "↓"}
-      </Button>
+        <Button variant="contained" onClick={() => handleSortChange("name")}>
+          Sort by Name {sortBy === "name" && sortOrder === "asc" && "↑"}
+          {sortBy === "name" && sortOrder === "desc" && "↓"}
+        </Button>
 
-      <Button variant="contained" onClick={() => handleSortChange("popular")}>
-        Sort by Count {sortBy === "popular" && sortOrder === "asc" && "↑"}
-        {sortBy === "popular" && sortOrder === "desc" && "↓"}
-      </Button>
+        <Button variant="contained" onClick={() => handleSortChange("popular")}>
+          Sort by Count {sortBy === "popular" && sortOrder === "asc" && "↑"}
+          {sortBy === "popular" && sortOrder === "desc" && "↓"}
+        </Button>
 
-      <div>
-        {[1, 2, 3, 4, 5].map((pageNumber) => (
-          <Button key={pageNumber} onClick={() => handlePageChange(pageNumber)}>
-            {pageNumber}
-          </Button>
-        ))}
+        <PaginationControl
+          pageCount={10}
+          currentPage={page}
+          onPageChange={handlePageChange}
+        />
       </div>
-
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Tag</TableCell>
-              <TableCell align="right">Count</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {tags.map((tag: Tag) => (
-              <TableRow key={tag.name}>
-                <TableCell component="th" scope="row">
-                  {tag.name}
-                </TableCell>
-                <TableCell align="right">{tag.count}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <div style={{ width: "800px", margin: "0 auto" }}>
+        {loading ? (
+          <CircularProgress style={{ margin: "20px auto", display: "block" }} />
+        ) : (
+          <TableContainer component={Paper}>
+            <Table style={{ textAlign: "center" }}>
+              <TableHead>
+                <TableRow>
+                  <TableCell
+                    style={{ fontWeight: "bold" }}
+                    onClick={() => handleSortChange("name")}
+                  >
+                    Tag name {sortBy === "name" && sortOrder === "asc" && "↑"}
+                    {sortBy === "name" && sortOrder === "desc" && "↓"}
+                  </TableCell>
+                  <TableCell style={{ fontWeight: "bold" }} align="right">
+                    Count
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {tags.map((tag: Tag) => (
+                  <TableRow key={tag.name}>
+                    <TableCell component="th" scope="row">
+                      {tag.name}
+                    </TableCell>
+                    <TableCell align="right">{tag.count}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+      </div>
     </div>
   );
 };
