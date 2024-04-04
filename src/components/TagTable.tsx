@@ -98,10 +98,7 @@ const TagTable: React.FC = () => {
             <Table style={{ textAlign: "center" }}>
               <TableHead>
                 <TableRow>
-                  <TableCell
-                    style={{ fontWeight: "bold" }}
-                    onClick={() => handleSortChange("name")}
-                  >
+                  <TableCell style={{ fontWeight: "bold" }}>
                     Tag name {sortBy === "name" && sortOrder === "asc" && "↑"}
                     {sortBy === "name" && sortOrder === "desc" && "↓"}
                   </TableCell>
