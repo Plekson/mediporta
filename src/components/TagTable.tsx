@@ -10,11 +10,6 @@ import {
   TableRow,
   Paper,
   Button,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  Pagination,
 } from "@mui/material";
 import { RootState, AppDispatch } from "../store/store";
 import { fetchTagsAsync } from "../store/tagsSlice";
@@ -111,7 +106,8 @@ const TagTable: React.FC = () => {
                     {sortBy === "name" && sortOrder === "desc" && "↓"}
                   </TableCell>
                   <TableCell style={{ fontWeight: "bold" }} align="right">
-                    Count
+                    Count {sortBy === "popular" && sortOrder === "asc" && "↑"}
+                    {sortBy === "popular" && sortOrder === "desc" && "↓"}
                   </TableCell>
                 </TableRow>
               </TableHead>
